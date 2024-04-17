@@ -7,6 +7,7 @@ const MongoStore = require('connect-mongo');
 const authRoutes = require("./routes/authRoutes");
 const requestRoutes = require('./routes/requestRoutes'); // Added requestRoutes
 const chatRoutes = require('./routes/chatRoutes'); // Added chatRoutes
+const newRequestRoutes = require('./routes/newRequestRoutes'); // Added newRequestRoutes
 const http = require('http');
 const { Server } = require("socket.io");
 const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
@@ -83,6 +84,9 @@ app.use(requestRoutes);
 
 // Chat Routes - Added for handling chat interface
 app.use(chatRoutes);
+
+// New Request Routes - Added for handling new request form
+app.use(newRequestRoutes);
 
 // Root path response
 app.get("/", (req, res) => {

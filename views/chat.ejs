@@ -2,17 +2,31 @@
 <html>
 <head>
   <title>Chat Interface</title>
+  <link rel="stylesheet" href="/css/style.css"> <!-- Ensure the path to CSS is correct -->
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body data-user-id="<%= userId %>" data-request-id="<%= requestId %>">
-  <ul id="messages">
-    <% chat.forEach(function(msg) { %>
-      <li><%= msg.messageText %></li>
-    <% }); %>
-  </ul>
-  <form id="form" action="">
-    <input id="input" autocomplete="off" /><button>Send</button>
-  </form>
+  <header>
+    <!-- Navigation Bar -->
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/requests/new">Submit New Request</a></li>
+        <li><a href="/chat">Go to Chat</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <ul id="messages">
+      <% chat.forEach(function(msg) { %>
+        <li><%= msg.messageText %></li>
+      <% }); %>
+    </ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+  </main>
   <script src="/js/chatInterface.js"></script>
   <script>
     var socket = io();

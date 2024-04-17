@@ -44,8 +44,7 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
       requirements = parsedData.requirements;
       urgency = parsedData.urgency;
     } catch (parseError) {
-      console.error('Error parsing extracted data:', parseError);
-      console.error(parseError.stack);
+      console.error('Error parsing extracted data:', parseError.message, parseError.stack);
       return res.status(400).json({ success: false, message: "Failed to parse extracted data from the user's request." });
     }
 
@@ -70,14 +69,12 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
     generateTeam(newRequest._id, { taskType, requirements, urgency })
       .then(team => console.log(`Team generated with ID: ${team._id}`))
       .catch(error => {
-        console.error('Failed to generate team:', error.message);
-        console.error(error.stack);
+        console.error('Failed to generate team:', error.message, error.stack);
       });
 
-    res.status(201).json({ success: true, request: newRequest });
+    res.status(201).json({ success: true, request: newRequest, message: "Request submitted successfully. Team generation in progress." });
   } catch (error) {
-    console.error('Failed to process request:', error.message);
-    console.error(error.stack);
+    console.error('Failed to process request:', error.message, error.stack);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });

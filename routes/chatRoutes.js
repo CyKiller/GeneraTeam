@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Chat = require('../models/Chat');
 const mongoose = require('mongoose');
+const { analyzeChatFeedback } = require('../utils/feedbackLoop'); // Importing the feedback loop utility
 
 // Middleware to ensure that userId and requestId are present
 const ensureChatParameters = (req, res, next) => {
@@ -49,7 +50,6 @@ router.get('/chat', ensureChatParameters, (req, res) => {
 router.post('/chat/save', ensureChatParameters, (req, res) => {
   const { userId, requestId, messageText, sender } = req.body;
 
-  // Re-validate userId and requestId to ensure they match the session and query parameters
   if (!userId || !requestId || !messageText || !sender) {
     console.log('Missing required fields for saving chat message');
     return res.status(400).json({ error: 'Missing required fields' });
@@ -69,6 +69,13 @@ router.post('/chat/save', ensureChatParameters, (req, res) => {
         console.error('Error saving chat message:', err);
         return res.status(500).json({ error: 'Error saving chat message' });
       }
+      // Trigger feedback analysis after saving the chat message
+      analyzeChatFeedback(requestId)
+        .then(() => console.log('Feedback analysis completed for requestId:', requestId))
+        .catch(error => {
+          console.error('Error during feedback analysis:', error.message, error.stack);
+          res.status(500).send('Error during feedback analysis');
+        });
       res.status(200).json(chat);
     }
   );

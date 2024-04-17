@@ -10,6 +10,8 @@ var requestId = document.body.getAttribute('data-request-id');
 
 if (!userId || !requestId) {
   console.error('Missing userId or requestId for chat functionality. Please ensure you are logged in and have selected a valid request.');
+} else {
+  console.log('Chat functionality initialized with userId:', userId, 'and requestId:', requestId);
 }
 
 form.addEventListener('submit', function(e) {
