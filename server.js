@@ -6,6 +6,10 @@ const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const authRoutes = require("./routes/authRoutes");
 const requestRoutes = require('./routes/requestRoutes'); // Added requestRoutes
+const chatRoutes = require('./routes/chatRoutes'); // Added chatRoutes
+const http = require('http');
+const { Server } = require("socket.io");
+const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
 
 if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
@@ -14,6 +18,8 @@ if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPE
 
 const app = express();
 const port = process.env.PORT || 3004;
+const server = http.createServer(app);
+const io = new Server(server);
 
 // Middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
@@ -75,6 +81,9 @@ app.use(authRoutes);
 // Request Routes - Added for handling user requests
 app.use(requestRoutes);
 
+// Chat Routes - Added for handling chat interface
+app.use(chatRoutes);
+
 // Root path response
 app.get("/", (req, res) => {
   res.render("index");
@@ -92,6 +101,42 @@ app.use((err, req, res, next) => {
   res.status(500).send("There was an error serving your request.");
 });
 
-app.listen(port, () => {
+// Socket.IO for real-time chat
+io.on('connection', (socket) => {
+  console.log('A user connected to the chat');
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected from the chat');
+  });
+
+  socket.on('chat message', (msg) => {
+    console.log('Message received: ', msg);
+    // Save chat message to MongoDB
+    if (msg.requestId) {
+      Chat.findOneAndUpdate(
+        { userId: msg.userId, requestId: msg.requestId },
+        { $push: { messages: { messageText: msg.messageText, sender: msg.sender, createdAt: new Date() } } },
+        { new: true, upsert: true },
+        (err, chat) => {
+          if (err) {
+            console.error('Error saving chat message:', err.message);
+            console.error(err.stack);
+          }
+        }
+      );
+
+      // Emit message only to the specific room (requestId)
+      socket.to(msg.requestId).emit('chat message', msg);
+    }
+  });
+
+  // Joining a room based on requestId
+  socket.on('join room', (roomId) => {
+    socket.join(roomId);
+    console.log(`A user joined room: ${roomId}`);
+  });
+});
+
+server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

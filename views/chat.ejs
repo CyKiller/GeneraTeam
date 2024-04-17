@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Interface</title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body data-user-id="<%= userId %>" data-request-id="<%= requestId %>">
+  <ul id="messages">
+    <% chat.forEach(function(msg) { %>
+      <li><%= msg.messageText %></li>
+    <% }); %>
+  </ul>
+  <form id="form" action="">
+    <input id="input" autocomplete="off" /><button>Send</button>
+  </form>
+  <script src="/js/chatInterface.js"></script>
+  <script>
+    var socket = io();
+
+    var form = document.getElementById('form');
+    var input = document.getElementById('input');
+    var userId = document.body.getAttribute('data-user-id');
+    var requestId = document.body.getAttribute('data-request-id');
+
+    if (!userId || !requestId) {
+      console.error('Missing userId or requestId. Please ensure you are logged in and have selected a valid request.');
+      alert('Missing userId or requestId. You will be redirected to the homepage.');
+      window.location.href = '/';
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (input.value) {
+        console.log('Sending message:', input.value);
+        socket.emit('chat message', { messageText: input.value, sender: 'user', userId: userId, requestId: requestId });
+        input.value = '';
+      }
+    });
+
+    socket.on('chat message', function(msg) {
+      console.log('Message received:', msg.messageText);
+      var item = document.createElement('li');
+      item.textContent = msg.messageText;
+      document.getElementById('messages').appendChild(item);
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('Connection error:', err.message, err.stack);
+    });
+  </script>
+</body>
+</html>
