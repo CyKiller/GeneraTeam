@@ -5,14 +5,15 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require('connect-mongo');
 const authRoutes = require("./routes/authRoutes");
+const requestRoutes = require('./routes/requestRoutes'); // Added requestRoutes
 
-if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET) {
+if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
   process.exit(-1);
 }
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3004;
 
 // Middleware to parse request bodies
 app.use(express.urlencoded({ extended: true }));
@@ -70,6 +71,9 @@ app.use((req, res, next) => {
 
 // Authentication Routes
 app.use(authRoutes);
+
+// Request Routes - Added for handling user requests
+app.use(requestRoutes);
 
 // Root path response
 app.get("/", (req, res) => {
