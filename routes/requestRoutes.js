@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const Request = require('../models/Request');
 const { isAuthenticated } = require('./middleware/authMiddleware');
+const { generateTeam } = require('../utils/teamGeneration');
 
 const router = express.Router();
 
@@ -44,6 +45,7 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
       urgency = parsedData.urgency;
     } catch (parseError) {
       console.error('Error parsing extracted data:', parseError);
+      console.error(parseError.stack);
       return res.status(400).json({ success: false, message: "Failed to parse extracted data from the user's request." });
     }
 
@@ -63,6 +65,15 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
     });
 
     console.log(`New request created with ID: ${newRequest._id}`);
+
+    // Generate team based on the request
+    generateTeam(newRequest._id, { taskType, requirements, urgency })
+      .then(team => console.log(`Team generated with ID: ${team._id}`))
+      .catch(error => {
+        console.error('Failed to generate team:', error.message);
+        console.error(error.stack);
+      });
+
     res.status(201).json({ success: true, request: newRequest });
   } catch (error) {
     console.error('Failed to process request:', error.message);
