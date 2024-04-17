@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/_head.ejs') %>
+  <body>
+<%- include('partials/_header.ejs') %>
+    <main role="main" class="container mt-4">
+      <h1>Your Generated Team</h1>
+      <div id="teamMembers" class="row">
+        <% teamMembers.forEach(function(member) { %>
+          <div class="col-md-4 mt-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= member.name %></h5>
+                <h6 class="card-subtitle mb-2 text-muted"><%= member.role %></h6>
+                <p class="card-text"><%= member.description %></p>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      <div class="text-center mt-4">
+        <a href="/chat" class="btn btn-secondary">Go to Chat</a>
+      </div>
+    </main>
+  </body>
+<%- include('partials/_footer.ejs') %>
+</html>

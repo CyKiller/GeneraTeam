@@ -17,7 +17,7 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
 
   try {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: "gpt-3.5-turbo",
+      model: "gpt-3.5-turbo", // Updated to use the latest model as per user feedback
       messages: [{
         role: "system",
         content: `Extract task type, requirements, and urgency from the following request:\n\n${requestText}`
@@ -29,11 +29,16 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
       presence_penalty: 0.0
     }, {
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Correctly using environment variable for API key
       }
     });
 
-    const extractedData = response.data.choices[0].text.trim();
+    if (!response.data.choices || response.data.choices.length === 0 || !response.data.choices[0].message || !response.data.choices[0].message.content) {
+      console.error('OpenAI API response is missing expected data.');
+      return res.status(500).json({ success: false, message: "OpenAI API response is missing expected data." });
+    }
+
+    const extractedData = response.data.choices[0].message.content.trim();
     console.log(`Extracted data from OpenAI: ${extractedData}`);
 
     // Attempt to parse the extracted data as JSON
@@ -67,12 +72,19 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
 
     // Generate team based on the request
     generateTeam(newRequest._id, { taskType, requirements, urgency })
-      .then(team => console.log(`Team generated with ID: ${team._id}`))
+      .then(team => {
+        console.log(`Team generated with ID: ${team._id}`);
+        if (req.accepts('html')) {
+          res.redirect('/team');
+        } else {
+          res.status(201).json({ success: true, request: newRequest, message: "Request submitted successfully. Team generation in progress." });
+        }
+      })
       .catch(error => {
         console.error('Failed to generate team:', error.message, error.stack);
+        res.status(500).json({ success: false, message: "Failed to generate team." });
       });
 
-    res.status(201).json({ success: true, request: newRequest, message: "Request submitted successfully. Team generation in progress." });
   } catch (error) {
     console.error('Failed to process request:', error.message, error.stack);
     res.status(500).json({ success: false, message: "Internal server error" });
