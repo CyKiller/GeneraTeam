@@ -1,17 +1,17 @@
 # GeneraTeam
 
-GeneraTeam is an innovative platform designed to dynamically generate virtual teams to handle specific user requests. By leveraging the capabilities of LangChain and OpenAI's GPT models, GeneraTeam interprets user inputs to create a tailored team of agents, each with unique profiles and expertise areas, ready to tackle a variety of tasks.
+GeneraTeam is an innovative platform leveraging LangChain and OpenAI's GPT models to dynamically generate teams capable of handling specific user requests. This allows for the intelligent understanding and processing of user requests, generating teams with hypothetical backgrounds and expertise areas, and facilitating user interactions through a chat interface.
 
 ## Overview
 
-The architecture of GeneraTeam integrates OpenAI's GPT for natural language processing and LangChain for workflow management to understand user requests and generate appropriate team members. The backend is built on Node.js and Express, with MongoDB for data persistence. The frontend utilizes HTML, CSS, and JavaScript for a simple and intuitive user experience.
+The system architecture integrates Node.js and Express for the backend, MongoDB for data persistence, and utilizes OpenAI's GPT and LangChain for processing and handling user requests. The frontend is built using HTML, CSS, and JavaScript, offering users a straightforward interface to interact with the system.
 
 ## Features
 
-- **User Request Understanding and Verification**: Utilizes OpenAI's GPT models to interpret and verify user requests.
-- **Dynamic Team Generation**: Generates a virtual team with roles and profiles suitable for the user's task.
-- **Integration and Interaction**: Offers a chat interface for users to interact with their generated team.
-- **Feedback Loop**: Monitors interactions to learn and improve future team generations.
+- **User Request Understanding and Verification**: Initial analysis and clarification of user requests using OpenAI's GPT model.
+- **Dynamic Team Generation**: Creation of virtual team members based on the request's requirements.
+- **Integration and Interaction**: Facilitates user interaction with the generated team via a chat interface.
+- **Feedback Loop**: Monitors interactions for continuous improvement.
 
 ## Getting started
 
@@ -19,14 +19,14 @@ The architecture of GeneraTeam integrates OpenAI's GPT for natural language proc
 
 - Node.js
 - MongoDB
-- An OpenAI API key
+- OpenAI API key
 
 ### Quickstart
 
-1. Clone the repository and navigate into the project directory.
+1. Clone the repository.
 2. Install dependencies with `npm install`.
-3. Copy `.env.example` to `.env` and fill in your MongoDB URL and OpenAI API key.
-4. Start the application with `npm start`. The server will run on the port specified in your `.env` file.
+3. Configure your environment by creating a `.env` file based on `.env.example`.
+4. Start the application using `npm start`.
 
 ### License
 

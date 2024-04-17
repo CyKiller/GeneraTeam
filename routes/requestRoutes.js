@@ -7,6 +7,7 @@ const { generateTeam } = require('../utils/teamGeneration');
 const router = express.Router();
 
 router.post('/api/requests', isAuthenticated, async (req, res) => {
+  console.log("Received request submission:", req.body); // Added logging for debugging
   const { requestText } = req.body;
   const userId = req.session.userId;
 
@@ -16,42 +17,38 @@ router.post('/api/requests', isAuthenticated, async (req, res) => {
   }
 
   try {
+    console.log("Sending request to OpenAI API"); // Log the action of sending a request
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: "gpt-3.5-turbo", // Updated to use the latest model as per user feedback
-      messages: [{
-        role: "system",
-        content: `Extract task type, requirements, and urgency from the following request:\n\n${requestText}`
-      }],
-      temperature: 0.5,
-      max_tokens: 1500,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a helpful assistant who specialize in putting together development teams." },
+        { role: "user", content: requestText }
+      ]
     }, {
       headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Correctly using environment variable for API key
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       }
     });
 
-    if (!response.data.choices || response.data.choices.length === 0 || !response.data.choices[0].message || !response.data.choices[0].message.content) {
-      console.error('OpenAI API response is missing expected data.');
+    console.log("Received response from OpenAI API"); // Log receiving the response
+
+    if (!response.data.choices || response.data.choices.length === 0 || !response.data.choices[0].message) {
+      console.error('OpenAI API response is missing expected data.', response.data);
       return res.status(500).json({ success: false, message: "OpenAI API response is missing expected data." });
     }
 
-    const extractedData = response.data.choices[0].message.content.trim();
-    console.log(`Extracted data from OpenAI: ${extractedData}`);
+    const messageContent = response.data.choices[0].message.content.trim();
+    console.log(`Extracted message content from OpenAI: ${messageContent}`);
 
-    // Attempt to parse the extracted data as JSON
+    // Splitting the extracted message content by line breaks and parsing it
+    const dataLines = messageContent.split('\n');
     let taskType, requirements, urgency;
-    try {
-      const parsedData = JSON.parse(extractedData);
-      taskType = parsedData.taskType;
-      requirements = parsedData.requirements;
-      urgency = parsedData.urgency;
-    } catch (parseError) {
-      console.error('Error parsing extracted data:', parseError.message, parseError.stack);
-      return res.status(400).json({ success: false, message: "Failed to parse extracted data from the user's request." });
-    }
+    dataLines.forEach(line => {
+      if (line.startsWith('Task type:')) taskType = line.split(':')[1].trim();
+      else if (line.startsWith('Requirements:')) requirements = line.split(':')[1].trim();
+      else if (line.startsWith('Urgency:')) urgency = line.split(':')[1].trim();
+    });
 
     // Validate the parsed data
     if (!taskType || !requirements || !urgency) {

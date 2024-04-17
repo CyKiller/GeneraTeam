@@ -9,7 +9,7 @@ async function generateTeam(requestId, taskDetails) {
     console.log(`Generating team for request ${requestId} with task type: ${taskType} and requirements: ${requirements}`);
 
     // Use OpenAI's GPT-3 API to generate team member profiles
-    const profilesResponse = await axios.post('https://api.openai.com/v1/completions', {
+    const profilesResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: "gpt-3.5-turbo",
       prompt: `Generate detailed profiles for a team working on a ${taskType} project with the following requirements: ${requirements}. Include hypothetical backgrounds, areas of expertise, and personality traits.`,
       temperature: 0.6,

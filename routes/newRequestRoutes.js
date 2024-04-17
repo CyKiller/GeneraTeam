@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const { isAuthenticated } = require('./middleware/authMiddleware');
 
 // Route to display the request submission form
-router.get('/requests/new', (req, res) => {
+router.get('/requests/new', isAuthenticated, (req, res) => {
   try {
     res.render('requestForm');
     console.log('Request form page rendered successfully.');

@@ -3,6 +3,7 @@ const router = express.Router();
 const Chat = require('../models/Chat');
 const mongoose = require('mongoose');
 const { analyzeChatFeedback } = require('../utils/feedbackLoop'); // Importing the feedback loop utility
+const { isAuthenticated } = require('./middleware/authMiddleware'); // Importing the isAuthenticated middleware
 
 // Middleware to ensure that userId and requestId are present
 const ensureChatParameters = (req, res, next) => {
@@ -27,8 +28,8 @@ const ensureChatParameters = (req, res, next) => {
   next();
 };
 
-// Route for chat interface
-router.get('/chat', ensureChatParameters, (req, res) => {
+// Route for chat interface, now protected with isAuthenticated middleware
+router.get('/chat', isAuthenticated, ensureChatParameters, (req, res) => {
   const { userId } = req.session;
   const { requestId } = req.query;
 
@@ -46,8 +47,8 @@ router.get('/chat', ensureChatParameters, (req, res) => {
     });
 });
 
-// Route to save chat messages
-router.post('/chat/save', ensureChatParameters, (req, res) => {
+// Route to save chat messages, now protected with isAuthenticated middleware
+router.post('/chat/save', isAuthenticated, ensureChatParameters, (req, res) => {
   const { userId, requestId, messageText, sender } = req.body;
 
   if (!userId || !requestId || !messageText || !sender) {
