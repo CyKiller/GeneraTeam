@@ -8,6 +8,8 @@ const authRoutes = require("./routes/authRoutes");
 const requestRoutes = require('./routes/requestRoutes'); // Added requestRoutes
 const chatRoutes = require('./routes/chatRoutes'); // Added chatRoutes
 const newRequestRoutes = require('./routes/newRequestRoutes'); // Added newRequestRoutes
+const feedbackRoutes = require('./routes/feedbackRoutes'); // Added feedbackRoutes
+const historyRoutes = require('./routes/historyRoutes'); // Added historyRoutes
 const http = require('http');
 const { Server } = require("socket.io");
 const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
@@ -87,6 +89,12 @@ app.use(chatRoutes);
 
 // New Request Routes - Added for handling new request form
 app.use(newRequestRoutes);
+
+// Feedback Routes - Added for handling feedback submission
+app.use(feedbackRoutes);
+
+// History Routes - Added for handling user history and chats
+app.use(historyRoutes);
 
 // Root path response
 app.get("/", (req, res) => {

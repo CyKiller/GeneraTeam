@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Sentiment = require('sentiment');
 const Chat = require('../models/Chat');
-const Feedback = require('../models/Feedback'); // This model will be created in the next step
+const Feedback = require('../models/Feedback');
 
 const sentiment = new Sentiment();
 
@@ -26,14 +26,26 @@ async function analyzeChatFeedback(requestId) {
     if (averageSentimentScore > 0) userSatisfaction = 'positive';
     else if (averageSentimentScore < 0) userSatisfaction = 'negative';
 
-    const feedback = new Feedback({
-      requestId,
-      userSatisfaction,
-      sentimentScore: averageSentimentScore,
-    });
+    // Fetch existing feedback if any
+    const existingFeedback = await Feedback.findOne({ requestId: requestId });
+    if (existingFeedback) {
+      console.log(`Updating existing feedback for requestId: ${requestId}`);
+      existingFeedback.sentimentScore = averageSentimentScore;
+      existingFeedback.userSatisfaction = userSatisfaction;
+      await existingFeedback.save();
+    } else {
+      const feedback = new Feedback({
+        requestId,
+        userSatisfaction,
+        sentimentScore: averageSentimentScore,
+      });
+      await feedback.save();
+      console.log(`Feedback saved for requestId: ${requestId} with user satisfaction: ${userSatisfaction}`);
+    }
 
-    await feedback.save();
-    console.log(`Feedback saved for requestId: ${requestId} with user satisfaction: ${userSatisfaction}`);
+    // Placeholder for adjusting team generation logic based on feedback trends
+    // e.g., adjustTeamGenerationBasedOnFeedback(feedback);
+    console.log('Placeholder for future implementation to adjust team generation based on feedback trends.');
   } catch (error) {
     console.error('Error analyzing chat feedback:', error.message, error.stack);
   }

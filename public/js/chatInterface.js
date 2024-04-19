@@ -50,4 +50,31 @@ document.addEventListener('DOMContentLoaded', function() {
   socket.on('connect_error', (err) => {
     console.error('Connection error:', err.message, err.stack);
   });
+
+  document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var satisfaction = document.getElementById('satisfaction').value;
+    var feedbackData = { requestId: requestId, userSatisfaction: satisfaction };
+    
+    fetch('/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(feedbackData),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Feedback submitted:', data);
+      alert('Thank you for your feedback!');
+    })
+    .catch((error) => {
+      console.error('Error submitting feedback:', error.message, error.stack);
+    });
+  });
 });
