@@ -11,11 +11,12 @@ const newRequestRoutes = require('./routes/newRequestRoutes'); // Added newReque
 const feedbackRoutes = require('./routes/feedbackRoutes'); // Added feedbackRoutes
 const historyRoutes = require('./routes/historyRoutes'); // Added historyRoutes
 const taskRoutes = require('./routes/taskRoutes'); // Added taskRoutes
+const githubRoutes = require('./routes/githubRoutes'); // Added githubRoutes
 const http = require('http');
 const { Server } = require("socket.io");
 const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
 
-if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY) {
+if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY || !process.env.GITHUB_API_TOKEN) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
   process.exit(-1);
 }
@@ -99,6 +100,9 @@ app.use(historyRoutes);
 
 // Task Routes - Added for handling task tracking and progress
 app.use(taskRoutes);
+
+// GitHub Routes - Added for handling GitHub API interactions
+app.use('/api/github', githubRoutes);
 
 // Root path response
 app.get("/", (req, res) => {
