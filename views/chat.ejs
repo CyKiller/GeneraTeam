@@ -42,19 +42,21 @@
       window.location.href = '/';
     }
 
+    socket.emit('join room', requestId);
+
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      if (input.value) {
+      if (input.value.trim()) {
         console.log('Sending message:', input.value);
-        socket.emit('chat message', { messageText: input.value, sender: 'user', userId: userId, requestId: requestId });
+        socket.emit('send message', { roomId: requestId, text: input.value, sender: 'user', userId: userId });
         input.value = '';
       }
     });
 
-    socket.on('chat message', function(msg) {
-      console.log('Message received:', msg.messageText);
+    socket.on('new message', function(data) {
+      console.log('Message received:', data.text);
       var item = document.createElement('li');
-      item.textContent = msg.messageText;
+      item.textContent = data.text; // Assuming data is an object with a text property
       document.getElementById('messages').appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });

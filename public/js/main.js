@@ -40,13 +40,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Response from server:', data); // Log the response from the server
             if (data.success) {
-                window.location.href = '/team'; // Redirect on success
+                console.log('Redirecting to the chat interface for the created request.');
+                window.location.href = data.redirectUrl; // Redirect to the chat interface with the requestId using redirectUrl from the server response
             } else {
                 throw new Error('Error submitting request: ' + (data.message || "Unknown error occurred."));
             }
         })
         .catch(error => {
             console.error('Error submitting form:', error);
+            console.log(`Error details: ${error.message}`, error.stack);
             feedbackElement.textContent = error.toString();
             feedbackElement.style.color = 'red';
             submitButton.textContent = originalButtonText; // Restore button text

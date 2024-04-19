@@ -7,7 +7,7 @@ const langChainUrl = process.env.LANGCHAIN_URL; // Ensure your LangChain API URL
 const callOpenAiApi = async (prompt) => {
   try {
     const response = await axios.post(
-      'https://api.openai.com/v4/completions',
+      'https://api.openai.com/v1/chat/completions',
       {
         model: 'gpt-3.5-turbo', // Or whatever model you're planning to use
         prompt: prompt,
@@ -27,6 +27,7 @@ const callOpenAiApi = async (prompt) => {
     return response.data;
   } catch (error) {
     console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    console.error(error.stack);
     throw error;
   }
 };
@@ -38,6 +39,7 @@ const callLangChainApi = async (data) => {
     return response.data;
   } catch (error) {
     console.error('Error calling LangChain API:', error.response ? error.response.data : error.message);
+    console.error(error.stack);
     throw error;
   }
 };

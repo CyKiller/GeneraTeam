@@ -28,49 +28,5 @@
         <p id="feedback" style="color: red;"></p> <!-- Feedback element for displaying messages -->
     </main>
     <script src="/js/main.js"></script>
-    <script>
-        document.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission behavior
-            const form = event.target;
-            const submitButton = form.querySelector('button[type="submit"]');
-            const feedbackElement = document.getElementById('feedback');
-            submitButton.textContent = 'Submitting...';
-            submitButton.disabled = true;
-
-            const formData = new FormData(form);
-            const requestText = formData.get('requestText');
-
-            fetch('/api/requests', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ requestText: requestText }),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        console.error('Error submitting form:', data.message || "An error occurred while submitting the request.");
-                        throw new Error(data.message || "An error occurred while submitting the request.");
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Response from server:', data); // Log the response from the server
-                if (data.success) {
-                    window.location.href = '/team'; // Redirect on success
-                } else {
-                    throw new Error('Error submitting request: ' + (data.message || "Unknown error occurred."));
-                }
-            })
-            .catch(error => {
-                console.error('Error submitting form:', error);
-                feedbackElement.textContent = error.toString();
-                submitButton.textContent = 'Submit Request'; // Restore button text
-                submitButton.disabled = false; // Re-enable the button
-            });
-        });
-    </script>
 </body>
 </html>

@@ -113,25 +113,10 @@ io.on('connection', (socket) => {
     console.log('User disconnected from the chat');
   });
 
-  socket.on('chat message', (msg) => {
-    console.log('Message received: ', msg);
-    // Save chat message to MongoDB
-    if (msg.requestId) {
-      Chat.findOneAndUpdate(
-        { userId: msg.userId, requestId: msg.requestId },
-        { $push: { messages: { messageText: msg.messageText, sender: msg.sender, createdAt: new Date() } } },
-        { new: true, upsert: true },
-        (err, chat) => {
-          if (err) {
-            console.error('Error saving chat message:', err.message);
-            console.error(err.stack);
-          }
-        }
-      );
-
-      // Emit message only to the specific room (requestId)
-      socket.to(msg.requestId).emit('chat message', msg);
-    }
+  socket.on('send message', (data) => {
+    console.log(`Message received: ${data.text} in room: ${data.roomId}`);
+    // Emit message only to the specific room (roomId)
+    io.to(data.roomId).emit('new message', data);
   });
 
   // Joining a room based on requestId
@@ -139,8 +124,15 @@ io.on('connection', (socket) => {
     socket.join(roomId);
     console.log(`A user joined room: ${roomId}`);
   });
+
+  socket.on('leave room', (roomId) => {
+    socket.leave(roomId);
+    console.log(`A user left room: ${roomId}`);
+  });
 });
 
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+module.exports = app;
