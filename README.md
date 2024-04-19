@@ -22,6 +22,7 @@ GeneraTeam integrates advanced technologies such as OpenAI's GPT for natural lan
 - Node.js installed on your machine.
 - MongoDB for database services.
 - An OpenAI API key for accessing GPT models.
+- GitHub account for creating a new repository. Token needs to be generated.R
 
 ### Quickstart
 
