@@ -8,10 +8,12 @@ GeneraTeam integrates advanced technologies such as OpenAI's GPT for natural lan
 
 ## Features
 
-- **User Request Understanding and Verification**: Utilizes OpenAI's GPT model for initial analysis and clarification of user requests.
-- **Dynamic Team Generation**: Based on the verified requests, GeneraTeam generates a virtual team with roles and profiles specifically suited to the task at hand.
-- **Integration and Interaction**: Provides a chat interface for direct interaction between users and their generated team, facilitating real-time communication and collaboration.
-- **Feedback Loop**: Implements a feedback mechanism to monitor user satisfaction and team performance, enabling continuous improvement of the team generation process.
+- **User Request Understanding and Verification**: Utilizes OpenAI's GPT model for initial analysis and clarification of user requests, ensuring accurate understanding of the task at hand.
+- **Dynamic Team Generation**: Based on the verified requests, GeneraTeam generates a virtual team with roles and profiles specifically suited to the task at hand, leveraging LangChain's capabilities for intelligent team composition.
+- **Integration and Interaction**: Provides a chat interface for direct interaction between users and their generated team, facilitating real-time communication, collaboration, and task execution.
+- **Feedback Loop**: Implements a feedback mechanism to monitor user satisfaction and team performance, enabling continuous improvement of the team generation process through machine learning and model fine-tuning.
+- **Scalability and Flexibility**: The platform is designed to handle a wide range of user requests, from simple tasks to complex projects, and can scale to accommodate increasing demand and workloads.
+- **Customization**: Offers customization options for team composition, allowing users to specify preferences or constraints for the generated team members.
 
 ## Getting Started
 
@@ -30,6 +32,16 @@ GeneraTeam integrates advanced technologies such as OpenAI's GPT for natural lan
    - `SESSION_SECRET=INPUT_REQUIRED {A secret string for session management}`
    - `OPENAI_API_KEY=INPUT_REQUIRED {Your OpenAI API key}`
 4. Start the server with `npm start`. The application will be available on the port specified in your `.env` file.
+
+### Contributing
+
+We welcome contributions from the community! If you'd like to contribute to GeneraTeam, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with descriptive commit messages.
+4. Push your changes to your forked repository.
+5. Submit a pull request to the main repository, describing your changes in detail.
 
 ### License
 
