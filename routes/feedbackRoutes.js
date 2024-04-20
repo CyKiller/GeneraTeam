@@ -3,13 +3,15 @@ const router = express.Router();
 const { isAuthenticated } = require('./middleware/authMiddleware');
 const Feedback = require('../models/Feedback');
 const { adjustTaskAssignmentAndTeamGeneration } = require('../utils/feedbackLoop');
+const { refineTeamGeneration } = require('../utils/feedbackRefiner');
 
 router.post('/api/feedback', isAuthenticated, (req, res) => {
-  const { requestId, userSatisfaction } = req.body;
+  const { requestId, userSatisfaction, comments } = req.body;
   const feedback = new Feedback({
     requestId,
     userSatisfaction,
     sentimentScore: 0, // Placeholder, actual score to be updated by analyzeChatFeedback function
+    comments,
   });
 
   feedback.save()
@@ -23,7 +25,6 @@ router.post('/api/feedback', isAuthenticated, (req, res) => {
     });
 });
 
-// Endpoint to submit feedback and trigger adjustments based on feedback
 router.post('/api/feedback/adjustment', isAuthenticated, async (req, res) => {
   const { requestId, feedback } = req.body;
   try {
@@ -36,7 +37,6 @@ router.post('/api/feedback/adjustment', isAuthenticated, async (req, res) => {
   }
 });
 
-// Endpoint to retrieve feedback for a specific request
 router.get('/api/feedback/:requestId', isAuthenticated, async (req, res) => {
   const { requestId } = req.params;
   try {
@@ -46,6 +46,18 @@ router.get('/api/feedback/:requestId', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error retrieving feedback:', err);
     res.status(500).json({ error: 'Error retrieving feedback: ' + err.message });
+  }
+});
+
+// Add a new endpoint to manually trigger the refinement process
+router.get('/api/refine-team-generation', isAuthenticated, async (req, res) => {
+  try {
+    await refineTeamGeneration();
+    console.log('Team generation refinement process initiated based on feedback.');
+    res.json({ message: 'Team generation refinement process initiated based on feedback.' });
+  } catch (err) {
+    console.error('Error initiating team generation refinement:', err);
+    res.status(500).json({ error: 'Error initiating team generation refinement: ' + err.message });
   }
 });
 

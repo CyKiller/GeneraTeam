@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [18.x, 20.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -20,11 +20,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm ci
+    - run: npm install
     - run: npm run build --if-present
       name: Build
     - run: npm test
       name: Test
+      if: matrix.node-version == '18.x'
 
   deploy:
     needs: build
@@ -34,15 +35,9 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '16.x'
-    - run: npm ci
-    - name: Deploy to Production
-      uses: easingthemes/ssh-deploy@v2.1.5
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-        ARGS: "-avzr --delete"
-        SOURCE: "dist/"
-        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-        TARGET: ${{ secrets.DEPLOY_PATH }}
+        node-version: '20.x'
+    - run: npm install
+    - run: npm run build --if-present
+      name: Build
+    - run: npm test
+      name: Test
