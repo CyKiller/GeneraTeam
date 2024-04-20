@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Cache Node Modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Run Build
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Notify Build Success
+        run: echo "Build completed successfully."
+        if: ${{ success() }}
+
+      - name: Notify Build Failure
+        run: echo "Build failed. Please check the logs for more details."
+        if: ${{ failure() }}
+
+  conditional-deployment:
+    needs: build
+    if: github.ref == 'refs/heads/main' && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Conditional Deployment Start
+        run: echo "Starting conditional deployment based on successful build."

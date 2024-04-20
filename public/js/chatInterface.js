@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
       input.value = '';
     } else {
       console.error('Cannot send message. Missing userId or requestId.');
+      alert('Cannot send message due to missing information. Please ensure you are logged in and have selected a valid request.');
     }
   });
 

@@ -2,13 +2,12 @@
 <html>
 <head>
   <title>Chat Interface</title>
-  <link rel="stylesheet" href="/css/style.css"> <!-- Ensure the path to CSS is correct -->
-  <link rel="stylesheet" href="/css/chatStyle.css"> <!-- Linking new chat styles -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/chatStyle.css">
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body data-user-id="<%= userId %>" data-request-id="<%= requestId %>">
   <header>
-    <!-- Navigation Bar -->
     <nav>
       <ul>
         <li><a href="/">Home</a></li>
@@ -20,11 +19,15 @@
   </header>
   <main class="chat-main">
     <div class="chat-history" id="messages">
-      <% chat.forEach(function(msg) { %>
-        <div class="chat-message">
-          <strong><%= msg.sender %>:</strong> <%= msg.messageText %>
-        </div>
-      <% }); %>
+      <% if (chat && chat.length > 0) { %>
+        <% chat.forEach(function(msg) { %>
+          <div class="chat-message">
+            <strong><%= msg.sender %>:</strong> <%= msg.messageText %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <p>No chat history found.</p>
+      <% } %>
     </div>
     <form id="form" class="chat-form" action="">
       <input id="input" class="chat-input" autocomplete="off" placeholder="Type your message here..." /><button class="chat-send">Send</button>
@@ -55,54 +58,54 @@
       console.error('Missing userId or requestId. Please ensure you are logged in and have selected a valid request.');
       alert('Missing userId or requestId. You will be redirected to the homepage.');
       window.location.href = '/';
-    }
+    } else {
+      socket.emit('join room', requestId);
 
-    socket.emit('join room', requestId);
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (input.value.trim()) {
-        console.log('Sending message:', input.value);
-        socket.emit('send message', { roomId: requestId, text: input.value, sender: 'user', userId: userId });
-        input.value = '';
-      }
-    });
-
-    socket.on('new message', function(data) {
-      console.log('Message received:', data.text);
-      var item = document.createElement('div');
-      item.classList.add('chat-message');
-      item.innerHTML = `<strong>${data.sender}:</strong> ${data.text}`; // Assuming data is an object with a text property
-      document.getElementById('messages').appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('Connection error:', err.message, err.stack);
-      alert('Error connecting to chat service. Please try again later.');
-    });
-
-    document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var satisfaction = document.getElementById('satisfaction').value;
-      var feedbackData = { requestId: requestId, userSatisfaction: satisfaction };
-      
-      fetch('/api/feedback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(feedbackData),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Feedback submitted:', data);
-        alert('Thank you for your feedback!');
-      })
-      .catch((error) => {
-        console.error('Error submitting feedback:', error);
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value.trim()) {
+          console.log('Sending message:', input.value);
+          socket.emit('send message', { roomId: requestId, text: input.value, sender: 'user', userId: userId });
+          input.value = '';
+        }
       });
-    });
+
+      socket.on('new message', function(data) {
+        console.log('Message received:', data.text);
+        var item = document.createElement('div');
+        item.classList.add('chat-message');
+        item.innerHTML = `<strong>${data.sender}:</strong> ${data.text}`;
+        document.getElementById('messages').appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('Connection error:', err.message, err.stack);
+        alert('Error connecting to chat service. Please try again later.');
+      });
+
+      document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var satisfaction = document.getElementById('satisfaction').value;
+        var feedbackData = { requestId: requestId, userSatisfaction: satisfaction };
+        
+        fetch('/api/feedback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(feedbackData),
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Feedback submitted:', data);
+          alert('Thank you for your feedback!');
+        })
+        .catch((error) => {
+          console.error('Error submitting feedback:', error);
+        });
+      });
+    }
   </script>
 </body>
 </html>
