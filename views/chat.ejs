@@ -3,6 +3,7 @@
 <head>
   <title>Chat Interface</title>
   <link rel="stylesheet" href="/css/style.css"> <!-- Ensure the path to CSS is correct -->
+  <link rel="stylesheet" href="/css/chatStyle.css"> <!-- Linking new chat styles -->
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body data-user-id="<%= userId %>" data-request-id="<%= requestId %>">
@@ -17,16 +18,18 @@
       </ul>
     </nav>
   </header>
-  <main>
-    <ul id="messages">
+  <main class="chat-main">
+    <div class="chat-history" id="messages">
       <% chat.forEach(function(msg) { %>
-        <li><%= msg.messageText %></li>
+        <div class="chat-message">
+          <strong><%= msg.sender %>:</strong> <%= msg.messageText %>
+        </div>
       <% }); %>
-    </ul>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+    </div>
+    <form id="form" class="chat-form" action="">
+      <input id="input" class="chat-input" autocomplete="off" placeholder="Type your message here..." /><button class="chat-send">Send</button>
     </form>
-    <section id="feedback-section">
+    <section id="feedback-section" class="chat-feedback">
       <h3>Your Feedback</h3>
       <form id="feedbackForm">
         <label for="satisfaction">How satisfied were you with the assistance provided?</label>
@@ -67,14 +70,16 @@
 
     socket.on('new message', function(data) {
       console.log('Message received:', data.text);
-      var item = document.createElement('li');
-      item.textContent = data.text; // Assuming data is an object with a text property
+      var item = document.createElement('div');
+      item.classList.add('chat-message');
+      item.innerHTML = `<strong>${data.sender}:</strong> ${data.text}`; // Assuming data is an object with a text property
       document.getElementById('messages').appendChild(item);
       window.scrollTo(0, document.body.scrollHeight);
     });
 
     socket.on('connect_error', (err) => {
       console.error('Connection error:', err.message, err.stack);
+      alert('Error connecting to chat service. Please try again later.');
     });
 
     document.getElementById('feedbackForm').addEventListener('submit', function(e) {

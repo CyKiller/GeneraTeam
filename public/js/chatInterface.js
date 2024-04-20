@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   } else {
     console.log('Chat functionality initialized with userId:', userId, 'and requestId:', requestId);
     socket.emit('join room', requestId);
-    socket.emit('request chat history', { userId: userId, requestId: requestId });
   }
 
   form.addEventListener('submit', function(e) {
@@ -31,24 +30,14 @@ document.addEventListener('DOMContentLoaded', function() {
   socket.on('new message', function(data) {
     console.log('Message received:', data.text);
     var item = document.createElement('li');
-    item.textContent = data.text; // Assuming data is an object with a text property
+    item.innerHTML = `<strong>${data.sender}:</strong> ${data.text}`; // Modified to include sender information
     messagesContainer.appendChild(item);
     window.scrollTo(0, document.body.scrollHeight);
   });
 
-  socket.on('chat history', function(history) {
-    console.log('Chat history received:', history);
-    if (Array.isArray(history)) {
-      history.forEach(function(msg) {
-        var item = document.createElement('li');
-        item.textContent = msg.messageText;
-        messagesContainer.prepend(item); // Prepend to maintain chronological order
-      });
-    }
-  });
-
   socket.on('connect_error', (err) => {
     console.error('Connection error:', err.message, err.stack);
+    alert('Error connecting to chat service. Please try again later.');
   });
 
   document.getElementById('feedbackForm').addEventListener('submit', function(e) {
@@ -76,5 +65,35 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch((error) => {
       console.error('Error submitting feedback:', error.message, error.stack);
     });
+  });
+
+  // Fetch chat history on page load
+  fetch(`/api/chat/history?requestId=${requestId}&userId=${userId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to fetch chat history');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Chat history loaded');
+    if (data.length === 0) {
+      console.log('No chat history found for this project.');
+    } else {
+      data.forEach(msg => {
+        var item = document.createElement('li');
+        item.innerHTML = `<strong>${msg.sender}:</strong> ${msg.messageText}`;
+        messagesContainer.appendChild(item);
+      });
+    }
+    window.scrollTo(0, document.body.scrollHeight);
+  })
+  .catch((error) => {
+    console.error('Error loading chat history:', error.message, error.stack);
   });
 });

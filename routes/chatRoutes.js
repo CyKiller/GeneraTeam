@@ -82,4 +82,24 @@ router.post('/chat/save', isAuthenticated, ensureChatParameters, (req, res) => {
   );
 });
 
+// Corrected route to fetch chat history, ensuring it matches the expected API endpoint
+router.get('/api/chat/history', isAuthenticated, ensureChatParameters, (req, res) => {
+  const { userId, requestId } = req.query;
+
+  Chat.findOne({ userId: userId, requestId: requestId })
+    .select('messages')
+    .then(chat => {
+      if (!chat) {
+        console.log(`No chat history found for userId: ${userId} and requestId: ${requestId}`);
+        // Changed to return an empty array instead of a 404 error when no chat history is found
+        return res.status(200).json([]);
+      }
+      res.json(chat.messages);
+    })
+    .catch(err => {
+      console.error('Error fetching chat history:', err);
+      res.status(500).json({ error: 'Error fetching chat history', details: err.message });
+    });
+});
+
 module.exports = router;

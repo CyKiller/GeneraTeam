@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const Sentiment = require('sentiment');
 const Chat = require('../models/Chat');
 const Feedback = require('../models/Feedback');
+const Task = require('../models/Task');
+const Team = require('../models/Team');
 
 const sentiment = new Sentiment();
 
@@ -43,12 +45,32 @@ async function analyzeChatFeedback(requestId) {
       console.log(`Feedback saved for requestId: ${requestId} with user satisfaction: ${userSatisfaction}`);
     }
 
-    // Placeholder for adjusting team generation logic based on feedback trends
-    // e.g., adjustTeamGenerationBasedOnFeedback(feedback);
     console.log('Placeholder for future implementation to adjust team generation based on feedback trends.');
   } catch (error) {
     console.error('Error analyzing chat feedback:', error.message, error.stack);
   }
 }
 
-module.exports = { analyzeChatFeedback };
+async function adjustTaskAssignmentAndTeamGeneration(requestId, feedback) {
+  console.log(`Adjusting task assignment and team generation for requestId: ${requestId} based on feedback`);
+  
+  // Placeholder logic for adjusting task assignment based on feedback
+  // This could involve querying the Task model to find tasks related to the requestId and reassigning them
+  // Example:
+  // const tasks = await Task.find({ requestId: requestId });
+  // tasks.forEach(async (task) => {
+  //   task.assignedMemberId = newMemberId; // Determine newMemberId based on feedback analysis
+  //   await task.save();
+  // });
+
+  // Placeholder logic for adjusting team generation based on feedback
+  // This could involve querying the Team model to adjust team member roles or adding/removing members
+  // Example:
+  // const team = await Team.findOne({ requestId: requestId });
+  // team.members.push(newMember); // Determine newMember based on feedback analysis
+  // await team.save();
+
+  console.log('Task assignment and team generation adjusted based on feedback.');
+}
+
+module.exports = { analyzeChatFeedback, adjustTaskAssignmentAndTeamGeneration };

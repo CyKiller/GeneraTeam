@@ -145,6 +145,10 @@ io.on('connection', (socket) => {
     socket.leave(roomId);
     console.log(`A user left room: ${roomId}`);
   });
+
+  socket.on('connect_error', (err) => {
+    console.error('Connection error:', err.message, err.stack);
+  });
 });
 
 server.listen(port, () => {
