@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
+     strategy:
       matrix:
         node-version: [18.x, 20.x]
 
@@ -26,8 +26,13 @@ jobs:
     - run: npm test
       name: Test
       if: matrix.node-version == '18.x'
+<<<<<<< HEAD
 
   deploy:
+=======
+      
+deploy:
+>>>>>>> origin/main
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -41,3 +46,7 @@ jobs:
       name: Build
     - run: npm test
       name: Test
+<<<<<<< HEAD
+=======
+    
+>>>>>>> origin/main
