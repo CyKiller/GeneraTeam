@@ -1,47 +1,46 @@
 const axios = require('axios');
 require('dotenv').config();
 
-// Function to trigger a build process
-async function buildProject(projectId) {
-    console.log(`Initiating build process for project ID: ${projectId}`);
+// Extend the existing functions or add new ones if necessary
+
+// Function to trigger a build process for GitHub Actions or other CI/CD services
+async function triggerBuild(projectId) {
     try {
-        const buildUrl = process.env.CI_BUILD_TRIGGER_URL; // CI/CD service build trigger URL from environment variables
-        const response = await axios.post(buildUrl, { projectId });
-        console.log(`Build process initiated successfully for project ID: ${projectId}, response: ${response.data}`);
+        const buildUrl = `${process.env.GITHUB_ACTIONS_CI_URL}/repos/{owner}/{repo}/dispatches`; // {Replace {owner} and {repo} with your GitHub repository details}
+        const response = await axios.post(buildUrl, {
+            event_type: 'build', // Customize this as per your GitHub Actions setup
+            client_payload: { projectId: projectId }
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.GITHUB_API_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+
+        console.log(`Build triggered successfully for project ID: ${projectId}. Response: ${JSON.stringify(response.data)}`);
+        return response.data;
     } catch (error) {
-        console.error(`Error initiating build process for project ID: ${projectId}`, error.message, error.stack);
+        console.error(`Error while triggering build for project ID: ${projectId}. Error: ${error.message}`, error.stack);
         throw error;
     }
 }
 
-// Function to trigger a test process
+// Similarly, you can define functions for triggering tests and deployment
+// For simplicity, let's assume the same GitHub Actions workflow handles build, test, and deploy through different jobs or steps within the same workflow. 
+// In a real-world scenario, you might have separate functions with different endpoints or payloads to specifically trigger test and deploy actions.
+
 async function testProject(projectId) {
-    console.log(`Initiating test process for project ID: ${projectId}`);
-    try {
-        const testUrl = process.env.CI_TEST_TRIGGER_URL; // CI/CD service test trigger URL from environment variables
-        const response = await axios.post(testUrl, { projectId });
-        console.log(`Test process initiated successfully for project ID: ${projectId}, response: ${response.data}`);
-    } catch (error) {
-        console.error(`Error initiating test process for project ID: ${projectId}`, error.message, error.stack);
-        throw error;
-    }
+    // Assuming the same function can trigger tests, customize as needed for your setup
+    return triggerBuild(projectId); // Reusing triggerBuild for demonstration. Customize as needed.
 }
 
-// Function to trigger a deployment process
 async function deployProject(projectId) {
-    console.log(`Initiating deployment process for project ID: ${projectId}`);
-    try {
-        const deployUrl = process.env.CI_DEPLOY_TRIGGER_URL; // CI/CD service deployment trigger URL from environment variables
-        const response = await axios.post(deployUrl, { projectId });
-        console.log(`Deployment process initiated successfully for project ID: ${projectId}, response: ${response.data}`);
-    } catch (error) {
-        console.error(`Error initiating deployment process for project ID: ${projectId}`, error.message, error.stack);
-        throw error;
-    }
+    // Assuming the same function can trigger deployment, customize as needed for your setup
+    return triggerBuild(projectId); // Reusing triggerBuild for demonstration. Customize as needed.
 }
 
 module.exports = {
-    buildProject,
-    testProject,
-    deployProject,
+    buildProject: triggerBuild,
+    testProject, // For demonstration, using the same function. Customize as needed.
+    deployProject, // For demonstration, using the same function. Customize as needed.
 };
