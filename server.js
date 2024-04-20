@@ -15,6 +15,7 @@ const githubRoutes = require('./routes/githubRoutes'); // Added githubRoutes
 const http = require('http');
 const { Server } = require("socket.io");
 const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
+const chatRoomManager = require('./utils/chatRoomManager'); // Import chatRoomManager
 
 if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY || !process.env.GITHUB_API_TOKEN) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
@@ -130,20 +131,15 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send message', (data) => {
-    console.log(`Message received: ${data.text} in room: ${data.roomId}`);
-    // Emit message only to the specific room (roomId)
-    io.to(data.roomId).emit('new message', data);
+    chatRoomManager.sendMessage(io, data.roomId, data);
   });
 
-  // Joining a room based on requestId
   socket.on('join room', (roomId) => {
-    socket.join(roomId);
-    console.log(`A user joined room: ${roomId}`);
+    chatRoomManager.joinRoom(socket, roomId);
   });
 
   socket.on('leave room', (roomId) => {
-    socket.leave(roomId);
-    console.log(`A user left room: ${roomId}`);
+    chatRoomManager.leaveRoom(socket, roomId);
   });
 
   socket.on('connect_error', (err) => {
