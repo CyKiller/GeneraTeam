@@ -10,8 +10,10 @@ on:
       - main
 
 jobs:
-  build:
+  setup-node:
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-node-modules.outputs.cache-hit }}
     steps:
       - uses: actions/checkout@v2
 
@@ -19,17 +21,17 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18.x'
+          cache: 'npm'
+
+  build:
+    needs: setup-node
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
       - name: Install Dependencies
+        if: needs.setup-node.outputs.cache-hit != 'true'
         run: npm install
-
-      - name: Cache Node Modules
-        uses: actions/cache@v2
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
 
       - name: Run Build
         run: npm run build
@@ -51,3 +53,17 @@ jobs:
     steps:
       - name: Notify Conditional Deployment Start
         run: echo "Starting conditional deployment based on successful build."
+
+  notifications:
+    if: always()
+    needs: [build, conditional-deployment]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification on Success
+        if: ${{ needs.build.result == 'success' && needs.conditional-deployment.result == 'success' }}
+        run: curl -X POST -H 'Content-type: application/json' --data '{"text":"Build and deployment successful for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Send Notification on Failure
+        if: ${{ needs.build.result == 'failure' || needs.conditional-deployment.result == 'failure' }}
+        run: 
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Build or deployment failed for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}

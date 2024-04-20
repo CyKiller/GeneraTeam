@@ -87,11 +87,13 @@ jobs:
 
       - name: Deploy to Production
         run: echo "Deploying to production server."
-        # {Add your deployment script or command here}
+        # Deployment script or command should be added here based on the project's deployment strategy
 
       - name: Notify Deployment Success
-        run: echo "Deployment completed successfully."
+        run: 
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployment completed successfully for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: ${{ success() }}
 
       - name: Notify Deployment Failure
+        run: curl -X POST -H 'Content-type: application/json' --data '{"text":"Deployment failed for GeneraTeam. Please check the logs for more details."}' ${{ secrets.SLACK_WEBHOOK_URL }}
         if: ${{ failure() }}
-        run: echo "Deployment failed. Please check the logs for more details."
