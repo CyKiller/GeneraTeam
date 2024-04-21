@@ -29,6 +29,12 @@ To begin using GeneraTeam, follow these simple steps:
 3. **Submit Your First Request**: Once logged in, you'll be directed to the homepage where you can submit your first request.
 4. **Interact with Your Team**: After your team is generated, use the chat interface to start working with your team.
 
+## CI/CD Integration (Optional)
+
+GeneraTeam supports CI/CD integration for automated testing, building, and deployment. To enable or disable CI/CD features, configure the `ENABLE_CI_CD` environment variable in your `.env` file.
+- `ENABLE_CI_CD=true` to enable CI/CD features.
+- `ENABLE_CI_CD=false` to disable CI/CD features and focus on local development. This is the recommended setting for local development environments.
+
 ## FAQ
 
 **Q: How long does it take to generate a team?**

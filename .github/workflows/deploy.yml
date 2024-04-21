@@ -64,7 +64,7 @@ jobs:
 
   deploy:
     needs: test
-    if: ${{ github.ref == 'refs/heads/main' && needs.test.result == 'success' }}
+    if: ${{ github.ref == 'refs/heads/main' && needs.test.result == 'success' && env.ENABLE_CI_CD == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

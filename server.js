@@ -16,6 +16,7 @@ const http = require('http');
 const { Server } = require("socket.io");
 const Chat = require('./models/Chat'); // Added Chat model for saving chat messages
 const chatRoomManager = require('./utils/chatRoomManager'); // Import chatRoomManager
+const { saveMessage, fetchMessages } = require('./utils/chatDbHelper'); // Import chatDbHelper functions
 
 if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET || !process.env.OPENAI_API_KEY || !process.env.GITHUB_API_TOKEN) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
@@ -130,16 +131,52 @@ io.on('connection', (socket) => {
     console.log('User disconnected from the chat');
   });
 
-  socket.on('send message', (data) => {
-    chatRoomManager.sendMessage(io, data.roomId, data);
+  socket.on('send message', async (data) => {
+    if (!data.userId || !data.roomId) {
+      console.error('Error: Missing userId or roomId in send message event');
+      socket.emit('error', 'Missing userId or roomId');
+      return;
+    }
+    try {
+      // Save message to DB
+      await saveMessage(data.userId, data.roomId, data.messageText, data.sender);
+      // Emit message to the room
+      io.to(data.roomId).emit('message received', data);
+      // Emit notification to all users except those in the target room
+      socket.to(data.roomId).emit('new message notification', { roomId: data.roomId, message: "New message received!" });
+      console.log(`Notification sent for new message in room ${data.roomId}`);
+    } catch (error) {
+      console.error('Error handling send message event:', error.message, error.stack);
+      socket.emit('error', 'Failed to send message');
+    }
   });
 
-  socket.on('join room', (roomId) => {
-    chatRoomManager.joinRoom(socket, roomId);
+  socket.on('join room', async (roomId) => {
+    if (!roomId) {
+      console.error('Error: Missing roomId in join room event');
+      socket.emit('error', 'Missing roomId');
+      return;
+    }
+    try {
+      socket.join(roomId);
+      console.log(`A user joined room: ${roomId}`);
+      // Fetch message history for the room
+      const messages = await fetchMessages(roomId);
+      // Emit message history to the joining socket
+      socket.emit('message history', { roomId, messages });
+    } catch (error) {
+      console.error('Error handling join room event:', error.message, error.stack);
+      socket.emit('error', 'Failed to join room');
+    }
   });
 
   socket.on('leave room', (roomId) => {
+    if (!roomId) {
+      console.error('Error: Missing roomId in leave room event');
+      return;
+    }
     chatRoomManager.leaveRoom(socket, roomId);
+    console.log(`A user left room: ${roomId}`);
   });
 
   socket.on('connect_error', (err) => {

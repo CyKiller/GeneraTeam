@@ -45,26 +45,38 @@ const updateCacheAfterBuild = (repoName) => {
 };
 
 const sendNotification = async (message) => {
-  try {
-    console.log(`Sending notification: ${message}`);
-    await axios.post(process.env.SLACK_WEBHOOK_URL, { text: message });
-    console.log('Notification sent successfully.');
-  } catch (error) {
-    console.error('Error sending notification:', error.message, error.stack);
+  if (process.env.ENABLE_CI_CD === 'true') {
+    try {
+      console.log(`Sending notification: ${message}`);
+      await axios.post(process.env.SLACK_WEBHOOK_URL, { text: message }); // INPUT_REQUIRED {Set your Slack Webhook URL for notifications}
+      console.log('Notification sent successfully.');
+    } catch (error) {
+      console.error('Error sending notification:', error.message, error.stack);
+    }
+  } else {
+    console.log('CI/CD features are disabled. Skipping notification.');
   }
 };
 
 const generateBuildReport = (buildStatus) => {
-  console.log(`Generating build report for status: ${buildStatus}`);
-  // Placeholder for build report generation logic
-  const report = `Build status: ${buildStatus}`;
-  console.log(`Build report generated: ${report}`);
-  return report;
+  if (process.env.ENABLE_CI_CD === 'true') {
+    console.log(`Generating build report for status: ${buildStatus}`);
+    // Placeholder for build report generation logic
+    const report = `Build status: ${buildStatus}`;
+    console.log(`Build report generated: ${report}`);
+    return report;
+  } else {
+    console.log('CI/CD features are disabled. Skipping build report generation.');
+  }
 };
 
 const optimizeBuildProcess = () => {
-  console.log('Optimizing build process');
-  // Placeholder for build process optimization logic
+  if (process.env.ENABLE_CI_CD === 'true') {
+    console.log('Optimizing build process');
+    // Placeholder for build process optimization logic
+  } else {
+    console.log('CI/CD features are disabled. Skipping build process optimization.');
+  }
 };
 
 module.exports = {

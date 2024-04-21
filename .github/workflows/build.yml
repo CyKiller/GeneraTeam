@@ -65,5 +65,4 @@ jobs:
 
       - name: Send Notification on Failure
         if: ${{ needs.build.result == 'failure' || needs.conditional-deployment.result == 'failure' }}
-        run: 
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"Build or deployment failed for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: curl -X POST -H 'Content-type: application/json' --data '{"text":"Build or deployment failed for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}

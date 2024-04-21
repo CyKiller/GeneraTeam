@@ -30,16 +30,16 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
           
+    - name: Check CI/CD Environment Variable
+      id: check_env
+      run: echo "ENABLE_CI_CD=${{ env.ENABLE_CI_CD }}" >> $GITHUB_ENV
+
     - name: Notify Test Success
-      if: ${{ success() }}
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      if: ${{ success() && env.ENABLE_CI_CD == 'true' }}
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Tests completed successfully for GeneraTeam."}' $SLACK_WEBHOOK_URL
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"Tests completed successfully for GeneraTeam."}' ${{ secrets.SLACK_WEBHOOK_URL }}
         
     - name: Notify Test Failure
-      if: ${{ failure() }}
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  
+      if: ${{ failure() && env.ENABLE_CI_CD == 'true' }}
       run: |
-        curl -X POST -H 'Content-type: application/json' --data '{"text":"Tests failed for GeneraTeam. Please check the logs for more details."}' $SLACK_WEBHOOK_URL
+        curl -X POST -H 'Content-type: application/json' --data '{"text":"Tests failed for GeneraTeam. Please check the logs for more details."}' ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,7 +1,7 @@
 var socket = io();
 
 document.addEventListener('DOMContentLoaded', function() {
-  var form = document.getElementById('form');
+  var chatForm = document.getElementById('chatForm');
   var input = document.getElementById('input');
   var messagesContainer = document.getElementById('messages');
   var userId = document.body.getAttribute('data-user-id');
@@ -16,12 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
     socket.emit('join room', requestId);
   }
 
-  form.addEventListener('submit', function(e) {
+  chatForm.addEventListener('submit', function(e) {
     e.preventDefault();
     if (input.value && userId && requestId) {
       console.log('Sending message:', input.value);
-      socket.emit('send message', { roomId: requestId, text: input.value, sender: 'user', userId: userId });
-      input.value = '';
+      socket.emit('send message', { roomId: requestId, messageText: input.value, sender: 'user', userId: userId });
+      input.value = ''; // Clear input after sending
     } else {
       console.error('Cannot send message. Missing userId or requestId.');
       alert('Cannot send message due to missing information. Please ensure you are logged in and have selected a valid request.');
@@ -29,11 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   socket.on('new message', function(data) {
-    console.log('Message received:', data.text);
-    var item = document.createElement('li');
-    item.innerHTML = `<strong>${data.sender}:</strong> ${data.text}`; // Modified to include sender information
+    console.log('Message received:', data.messageText);
+    var item = document.createElement('div');
+    item.classList.add('chat-message');
+    item.innerHTML = `<strong>${data.sender}:</strong> ${data.messageText}`;
     messagesContainer.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
+    messagesContainer.scrollTo(0, messagesContainer.scrollHeight); // Auto-scroll to bottom
   });
 
   socket.on('connect_error', (err) => {
@@ -87,14 +88,23 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('No chat history found for this project.');
     } else {
       data.forEach(msg => {
-        var item = document.createElement('li');
+        var item = document.createElement('div');
+        item.classList.add('chat-message');
         item.innerHTML = `<strong>${msg.sender}:</strong> ${msg.messageText}`;
         messagesContainer.appendChild(item);
       });
     }
-    window.scrollTo(0, document.body.scrollHeight);
+    messagesContainer.scrollTo(0, messagesContainer.scrollHeight); // Auto-scroll to bottom
   })
   .catch((error) => {
     console.error('Error loading chat history:', error.message, error.stack);
+  });
+
+  socket.on('new message notification', function(data) {
+    if (data.roomId !== requestId) { // Check if the notification is not for the current room
+      console.log(`New message in room ${data.roomId}: ${data.message}`);
+      // Implement more sophisticated notification handling as needed
+      // For example, display a visual indicator for unread messages
+    }
   });
 });

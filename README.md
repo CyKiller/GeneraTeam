@@ -21,11 +21,17 @@ GeneraTeam integrates OpenAI's GPT for natural language processing and LangChain
 - MongoDB
 - An OpenAI API key for accessing GPT models
 
+### Configuration
+
+- CI/CD Integration (Optional): GeneraTeam supports CI/CD integration for automated testing, building, and deployment. To enable or disable CI/CD features, configure the `ENABLE_CI_CD` environment variable in your `.env` file.
+  - `ENABLE_CI_CD=true` to enable CI/CD features.
+  - `ENABLE_CI_CD=false` to disable CI/CD features and focus on local development. This is the recommended setting for local development environments.
+
 ### Quickstart
 
 1. Clone the GeneraTeam repository.
 2. Install dependencies with `npm install`.
-3. Configure the required environment variables in a `.env` file.
+3. Configure the required environment variables in a `.env` file. Ensure to set `ENABLE_CI_CD` based on your preference for CI/CD integration.
 4. Start the server with `npm start`. Access the application on the specified port in your `.env` file.
 
 ### License
